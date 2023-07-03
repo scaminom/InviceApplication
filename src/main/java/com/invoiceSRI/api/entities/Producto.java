@@ -1,16 +1,11 @@
 package com.invoiceSRI.api.entities;
 
-import com.invoiceSRI.api.entities.enums.CodigoImpuestos;
-import com.invoiceSRI.api.entities.enums.TarifaImpuestos;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ManyToMany;
-
-import java.util.List;
 
 
 @Entity
@@ -33,24 +28,17 @@ public class Producto {
     private double descuento;
 
     @Column(name = "codigo_impuestos")
-    private CodigoImpuestos codigoImpuestos;
+    private String codigoImpuestos;
 
     @Column(name = "tarifa_iva")
-    private TarifaImpuestos tarifaImpuestos;
+    private String tarifaImpuestos;
 
     private int cantidad;
-
-    @ManyToMany(mappedBy = "productos")
-    private List<Factura> facturas;
-
-    @ManyToMany(mappedBy = "productos")
-    private List<Emisor> emisores;
 
     public Producto() {
     }
 
-    public Producto(Long id, String nombre, String codigoPrincipal, String descripcion, double valorUnitario, double descuento, CodigoImpuestos codigoImpuestos, TarifaImpuestos tarifaImpuestos, int cantidad, List<Factura> facturas, List<Emisor> emisores) {
-        this.id = id;
+    public Producto(String nombre, String codigoPrincipal, String descripcion, double valorUnitario, double descuento, String codigoImpuestos, String tarifaImpuestos, int cantidad) {
         this.nombre = nombre;
         this.codigoPrincipal = codigoPrincipal;
         this.descripcion = descripcion;
@@ -59,8 +47,6 @@ public class Producto {
         this.codigoImpuestos = codigoImpuestos;
         this.tarifaImpuestos = tarifaImpuestos;
         this.cantidad = cantidad;
-        this.facturas = facturas;
-        this.emisores = emisores;
     }
 
     public Long getId() {
@@ -111,19 +97,19 @@ public class Producto {
         this.descuento = descuento;
     }
 
-    public CodigoImpuestos getCodigoImpuestos() {
+    public String getCodigoImpuestos() {
         return codigoImpuestos;
     }
 
-    public void setCodigoImpuestos(CodigoImpuestos codigoImpuestos) {
+    public void setCodigoImpuestos(String codigoImpuestos) {
         this.codigoImpuestos = codigoImpuestos;
     }
 
-    public TarifaImpuestos getTarifaImpuestos() {
+    public String getTarifaImpuestos() {
         return tarifaImpuestos;
     }
 
-    public void setTarifaImpuestos(TarifaImpuestos tarifaImpuestos) {
+    public void setTarifaImpuestos(String tarifaImpuestos) {
         this.tarifaImpuestos = tarifaImpuestos;
     }
 
@@ -133,21 +119,5 @@ public class Producto {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
-    }
-
-    public List<Factura> getFacturas() {
-        return facturas;
-    }
-
-    public void setFacturas(List<Factura> facturas) {
-        this.facturas = facturas;
-    }
-
-    public List<Emisor> getEmisores() {
-        return emisores;
-    }
-
-    public void setEmisores(List<Emisor> emisores) {
-        this.emisores = emisores;
     }
 }

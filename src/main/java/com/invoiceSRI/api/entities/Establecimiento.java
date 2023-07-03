@@ -2,23 +2,21 @@ package com.invoiceSRI.api.entities;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-
 @Entity
 @Table(name = "establecimiento")
 public class Establecimiento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "establecimiento_id")
     private Long id;
-
     private String nombre;
-
     private int codigo;
     private String direccion;
     private boolean activo;
 
-    @OneToMany(mappedBy = "establecimiento")
-    private List<Emisor> emisores;
+    @ManyToOne
+    @JoinColumn(name = "factura_id")
+    private Factura factura;
 
     public Establecimiento() {}
 
@@ -69,11 +67,11 @@ public class Establecimiento {
         this.activo = activo;
     }
 
-    public List<Emisor> getEmisores() {
-        return emisores;
+    public Factura getFactura() {
+        return factura;
     }
 
-    public void setEmisores(List<Emisor> emisores) {
-        this.emisores = emisores;
+    public void setFactura(Factura factura) {
+        this.factura = factura;
     }
 }

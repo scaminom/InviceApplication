@@ -1,10 +1,10 @@
 package com.invoiceSRI.api;
 
+import com.invoiceSRI.api.entities.Factura;
+import com.invoiceSRI.api.entities.constants.*;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,7 +19,75 @@ import java.io.File;
 @Component
 public class XMLGenerator {
 
-    public void generateXMLFromTables() {
+    private String getTipoAmbiente(String tipoAmbiente) {
+        String valorAmbiente = null;
+        if (Ambiente.getPruebas().equals(tipoAmbiente)) {
+            valorAmbiente = "1";
+        } else if (Ambiente.getProduccion().equals(tipoAmbiente)) {
+            valorAmbiente = "2";
+        }
+        return valorAmbiente;
+    }
+
+    private String getObligadoContabilidad(String obligadoContabilidad) {
+        String valorObligadoContabilidad = null;
+        if (ObligadoContabilidad.getNo().equals(obligadoContabilidad)) {
+            valorObligadoContabilidad = "SI";
+        } else if (ObligadoContabilidad.getSi().equals(obligadoContabilidad)) {
+            valorObligadoContabilidad = "NO";
+        }
+        return valorObligadoContabilidad;
+    }
+
+    private String getTipoIdentificacion(String tipoIdentificacion) {
+        String valorTipoIdentificacion = null;
+        if (TipoIdentificacion.getRuc().equals(tipoIdentificacion)) {
+            valorTipoIdentificacion = "04";
+        } else if (TipoIdentificacion.getCedula().equals(tipoIdentificacion)) {
+            valorTipoIdentificacion = "05";
+        } else if (TipoIdentificacion.getPasaporte().equals(tipoIdentificacion)) {
+            valorTipoIdentificacion = "06";
+        } else if (TipoIdentificacion.getConsumidorFinal().equals(tipoIdentificacion)) {
+            valorTipoIdentificacion = "07";
+        } else if (TipoIdentificacion.getIdentificacionExterior().equals(tipoIdentificacion)) {
+            valorTipoIdentificacion = "08";
+        }
+        return valorTipoIdentificacion;
+    }
+
+    private String getCodigoImpuesto(String codigoImpuesto) {
+        String valorCodigoImpuesto = null;
+        if (CodigoImpuestos.getIva().equals(codigoImpuesto)) {
+            valorCodigoImpuesto = "2";
+        } else if (CodigoImpuestos.getIce().equals(codigoImpuesto)) {
+            valorCodigoImpuesto = "3";
+        } else if (CodigoImpuestos.getIrbpnr().equals(codigoImpuesto)) {
+            valorCodigoImpuesto = "5";
+        }
+        return valorCodigoImpuesto;
+    }
+
+    private String getTarifaImpuestos(String tarifaImpuesto) {
+        String valorTarifaImpuesto = null;
+        if (TarifaImpuestos.getTarifa0().equals(tarifaImpuesto)) {
+            valorTarifaImpuesto = "0";
+        } else if (TarifaImpuestos.getTarifa12().equals(tarifaImpuesto)) {
+            valorTarifaImpuesto = "2";
+        } else if (TarifaImpuestos.getTarifa14().equals(tarifaImpuesto)) {
+            valorTarifaImpuesto = "3";
+        } else if (TarifaImpuestos.getNoObjetoImpuesto().equals(tarifaImpuesto)) {
+            valorTarifaImpuesto = "6";
+        } else if (TarifaImpuestos.getExentoIva().equals(tarifaImpuesto)) {
+            valorTarifaImpuesto = "7";
+        } else if (TarifaImpuestos.getIvaDiferenciado().equals(tarifaImpuesto)) {
+            valorTarifaImpuesto = "8";
+        }
+        return valorTarifaImpuesto;
+    }
+
+
+
+    public Document XMLBuilder(Factura facturaObject) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -29,33 +97,35 @@ public class XMLGenerator {
             doc.appendChild(factura);
 
             factura.setAttribute("id", "comprobante");
-            factura.setAttribute("version", "1.00");
+            factura.setAttribute("version", "1.0.0");
 
             Element infoTributaria = doc.createElement("infoTributaria");
             factura.appendChild(infoTributaria);
 
+            String tipoAmbiente = facturaObject.getEmisor().getTipoAmbiente();
+            String valorAmbiente = getTipoAmbiente(tipoAmbiente);
             Element ambiente = doc.createElement("ambiente");
-            ambiente.setTextContent("1");
+            ambiente.setTextContent(valorAmbiente);
             infoTributaria.appendChild(ambiente);
 
             Element tipoEmision = doc.createElement("tipoEmision");
-            tipoEmision.setTextContent("1");
+            tipoEmision.setTextContent(facturaObject.getEmisor().getTipoEmision());
             infoTributaria.appendChild(tipoEmision);
 
             Element razonSocial = doc.createElement("razonSocial");
-            razonSocial.setTextContent("NOMBRE DE LA EMPRESA S.A");
+            razonSocial.setTextContent(facturaObject.getEmisor().getRazonSocial());
             infoTributaria.appendChild(razonSocial);
 
             Element nombreComercial = doc.createElement("nombreComercial");
-            nombreComercial.setTextContent("NOMBRE DE LA EMPRESA S.A");
+            nombreComercial.setTextContent(facturaObject.getEmisor().getNombreComercial());
             infoTributaria.appendChild(nombreComercial);
 
             Element ruc = doc.createElement("ruc");
-            ruc.setTextContent("12347891001");
+            ruc.setTextContent(facturaObject.getEmisor().getRuc());
             infoTributaria.appendChild(ruc);
 
             Element claveAcceso = doc.createElement("claveAcceso");
-            claveAcceso.setTextContent("1789042345678901234567890123456789012345678901243");
+            claveAcceso.setTextContent(facturaObject.getEmisor().getTokenFirmar());
             infoTributaria.appendChild(claveAcceso);
 
             Element codDoc = doc.createElement("codDoc");
@@ -63,55 +133,59 @@ public class XMLGenerator {
             infoTributaria.appendChild(codDoc);
 
             Element estab = doc.createElement("estab");
-            estab.setTextContent("001");
+            estab.setTextContent(facturaObject.getEmisor().getCodigoEstablecimiento());
             infoTributaria.appendChild(estab);
 
             Element ptoEmi = doc.createElement("ptoEmi");
-            ptoEmi.setTextContent("001");
+            ptoEmi.setTextContent(facturaObject.getEmisor().getCodigoPuntoEmision());
             infoTributaria.appendChild(ptoEmi);
 
             Element secuencial = doc.createElement("secuencial");
-            secuencial.setTextContent("000001234");
+            secuencial.setTextContent(Long.toString(facturaObject.getNumeroSecuencial()));
             infoTributaria.appendChild(secuencial);
 
             Element dirMatriz = doc.createElement("dirMatriz");
-            dirMatriz.setTextContent("DIRECCION DE LA EMPRESA");
+            dirMatriz.setTextContent(facturaObject.getEmisor().getDireccionMatriz());
             infoTributaria.appendChild(dirMatriz);
 
             Element infoFactura = doc.createElement("infoFactura");
             factura.appendChild(infoFactura);
 
             Element fechaEmision = doc.createElement("fechaEmision");
-            fechaEmision.setTextContent("15/06/2020");
+            fechaEmision.setTextContent(String.valueOf(facturaObject.getFechaEmision()));
             infoFactura.appendChild(fechaEmision);
 
             Element dirEstablecimiento = doc.createElement("dirEstablecimiento");
-            dirEstablecimiento.setTextContent("DIRECCION ESTABLECIMIENTO");
+            dirEstablecimiento.setTextContent(facturaObject.getEmisor().getEstablecimiento().getDireccion());
             infoFactura.appendChild(dirEstablecimiento);
 
+            String obligadoContabilidadSRI = facturaObject.getEmisor().getObligadoContabilidad();
+            String valorObligadoContabilidad = getObligadoContabilidad(obligadoContabilidadSRI);
             Element obligadoContabilidad = doc.createElement("obligadoContabilidad");
-            obligadoContabilidad.setTextContent("SI");
+            obligadoContabilidad.setTextContent(valorObligadoContabilidad);
             infoFactura.appendChild(obligadoContabilidad);
 
+            String tipoIdentificacion = facturaObject.getCliente().getTipoIdentificacion();
+            String valorTipoIdentificacion = getTipoIdentificacion(tipoIdentificacion);
             Element tipoIdentificacionComprobador = doc.createElement("tipoIdentificacionComprobador");
-            tipoIdentificacionComprobador.setTextContent("05");
+            tipoIdentificacionComprobador.setTextContent(valorTipoIdentificacion);
             infoFactura.appendChild(tipoIdentificacionComprobador);
 
             Element razonSocialComprador = doc.createElement("razonSocialComprador");
-            razonSocialComprador.setTextContent("NOMBRE DEL COMPRADOR");
+            razonSocialComprador.setTextContent(facturaObject.getCliente().getRazonSocial());
             infoFactura.appendChild(razonSocialComprador);
 
             Element identificacionComprador = doc.createElement("identificacionComprador");
-            identificacionComprador.setTextContent("1234567891");
+            identificacionComprador.setTextContent(facturaObject.getCliente().getNumeroIdentificacion());
             infoFactura.appendChild(identificacionComprador);
 
-            Element TotalSinImpuestos = doc.createElement("TotalSinImpuestos");
-            TotalSinImpuestos.setTextContent("1.00");
-            infoFactura.appendChild(TotalSinImpuestos);
+            Element totalSinImpuestos = doc.createElement("TotalSinImpuestos");
+            totalSinImpuestos.setTextContent(String.valueOf(facturaObject.getSubtotalSinImpuesto()));
+            infoFactura.appendChild(totalSinImpuestos);
 
-            Element TotalDescuento = doc.createElement("TotalDescuento");
-            TotalDescuento.setTextContent("0.00");
-            infoFactura.appendChild(TotalDescuento);
+            Element totalDescuento = doc.createElement("TotalDescuento");
+            totalDescuento.setTextContent(String.valueOf(facturaObject.getTotalDescuento()));
+            infoFactura.appendChild(totalDescuento);
 
             Element totalConImpuestos = doc.createElement("totalConImpuestos");
             infoFactura.appendChild(totalConImpuestos);
@@ -119,24 +193,28 @@ public class XMLGenerator {
             Element totalImpuesto = doc.createElement("totalImpuesto");
             totalConImpuestos.appendChild(totalImpuesto);
 
+            String codigoImpuesto = facturaObject.getItems().get(1).getProducto().getCodigoImpuestos();
+            String valorCodigoImpuesto = getCodigoImpuesto(codigoImpuesto);
             Element codigo = doc.createElement("codigo");
-            codigo.setTextContent("2");
+            codigo.setTextContent(valorCodigoImpuesto);
             totalImpuesto.appendChild(codigo);
 
+            String tarifaImpuesto = facturaObject.getItems().get(1).getProducto().getTarifaImpuestos();
+            String valorTarifaImpuesto = getTarifaImpuestos(tarifaImpuesto);
             Element codigoPorcentaje = doc.createElement("codigoPorcentaje");
-            codigoPorcentaje.setTextContent("0");
+            codigoPorcentaje.setTextContent(valorTarifaImpuesto);
             totalImpuesto.appendChild(codigoPorcentaje);
 
             Element baseImponible = doc.createElement("baseImponible");
-            baseImponible.setTextContent("1.00");
+            baseImponible.setTextContent(String.valueOf(facturaObject.getSubtotalSinImpuesto()));
             totalImpuesto.appendChild(baseImponible);
 
             Element valor = doc.createElement("valor");
-            valor.setTextContent("0.12");
+            valor.setTextContent(String.valueOf(facturaObject.getTotal()));
             totalImpuesto.appendChild(valor);
 
             Element propina = doc.createElement("propina");
-            propina.setTextContent("0.00");
+            propina.setTextContent(String.valueOf(facturaObject.getPropina()));
             infoFactura.appendChild(propina);
 
             Element importeTotal = doc.createElement("importeTotal");
@@ -233,15 +311,26 @@ public class XMLGenerator {
             campoAdicional.setAttribute("nombre", "email");
             infoAdicional.appendChild(campoAdicional);
 
+            saveXML(doc);
+
+            return doc;
+
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public void saveXML(Document doc) {
+        try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(new File("factura.xml"));
             transformer.transform(source, result);
-
             System.out.println("XML generado correctamente.");
-
-        } catch (ParserConfigurationException | TransformerException e) {
+        } catch (TransformerException e) {
             e.printStackTrace();
         }
     }
