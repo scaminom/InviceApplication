@@ -19,7 +19,7 @@ public class Items {
     @Column(name = "item_id")
     private Long id;
 
-    private int cantidad;
+    private int amount;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -30,19 +30,11 @@ public class Items {
     @JsonBackReference
     private Factura factura;
 
-    private double descuento;
+    private double discount;
 
     private double total;
 
     public Items() {
-    }
-
-    public Items(Producto producto, int cantidad, double descuento, double total) {
-        this.producto = producto;
-        this.cantidad = cantidad;
-        this.descuento = descuento;
-        this.total = total;
-        this.factura = null;
     }
 
     public Long getId() {
@@ -53,12 +45,12 @@ public class Items {
         this.id = id;
     }
 
-    public int getCantidad() {
-        return cantidad;
+    public int getAmount() {
+        return amount;
     }
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 
     public Producto getProducto() {
@@ -77,12 +69,12 @@ public class Items {
         this.factura = factura;
     }
 
-    public double getDescuento() {
-        return descuento;
+    public double getDiscount() {
+        return discount;
     }
 
-    public void setDescuento(double descuento) {
-        this.descuento = descuento;
+    public void setDiscount(double discount) {
+        this.discount = discount;
     }
 
     public double getTotal() {
